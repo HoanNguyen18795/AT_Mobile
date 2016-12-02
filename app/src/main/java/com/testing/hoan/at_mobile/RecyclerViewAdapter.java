@@ -41,7 +41,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         //Loading image from URL
         imageLoader =ApplicationControl.getInstance(context).getmImageLoader();
         imageLoader.get(event.getImageUrl(),ImageLoader.getImageListener(holder.imageView, R.drawable.ic_drawer, android.R.drawable.ic_dialog_alert));
-        holder.imageView.setImageUrl(event.getImageUrl(),imageLoader);
+        holder.getImageView().setImageUrl(event.getImageUrl(),imageLoader);
+        holder.getTextView().setText(event.getTitle());
     }
 
     @Override
@@ -50,12 +51,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
+        //test view
+        private TextView tv;
         //Views
-        public NetworkImageView imageView;
+        private NetworkImageView imageView;
         // initializing views
         public ViewHolder(View itemView) {
             super(itemView);
             imageView=(NetworkImageView) itemView.findViewById(R.id.imageItem);
+            tv=(TextView) itemView.findViewById(R.id.testTv);
+        }
+        public NetworkImageView getImageView(){
+            return imageView;
+        }
+        public TextView getTextView(){
+            return tv;
         }
     }
 }

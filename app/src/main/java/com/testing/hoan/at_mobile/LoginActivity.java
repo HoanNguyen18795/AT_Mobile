@@ -30,7 +30,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -53,8 +55,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private SessionManager session;
     private SQLiteHandler db;
-    private static final String TAG=LoginActivity.class.getSimpleName();
-    private int code=0;
+    private int code=-1;
+    private static final String TAG="LoginActivity";
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -326,7 +328,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
                 String tag_string_req="req_login";
                 StringRequest strReq=new StringRequest(Request.Method.GET, AppConfig.LOGIN_URL, new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(String response) {
                         Log.d(TAG, "Login Response: " + response.toString());
@@ -351,24 +352,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             int role_level=array.getInt(15);
                             String token=array.getString(16);
                             int code=result.getInt("code");
+
                             if(code==0){
                                 session.setLogin(true);
                                 setCode(code);
                                 // save login infos to SQLite
-                                db.addUser(id,userName,active,last_login,created,update,fullName,phone,email,address,city,country,avatar,gender,birthday,role_level,token);
+                                //db.addUser(id,userName,active,last_login,created,update,fullName,phone,email,address,city,country,avatar,gender,birthday,role_level,token);
                             }
                             else{
                                 setCode(code);
                             }
                         }catch(Exception e){
                             e.printStackTrace();
+                            Toast.makeText(LoginActivity.this, "could not retrive json ", Toast.LENGTH_SHORT).show();
                         }
-
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-
+                        volleyError.printStackTrace();
+                        Toast.makeText(LoginActivity.this, "Fail to login! check your connection", Toast.LENGTH_SHORT).show();
                     }
                 }){
 
@@ -383,7 +386,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
 
                 };
-
+                strReq.setRetryPolicy(new DefaultRetryPolicy(10000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 //adding request to the request queue
                 ApplicationControl.getInstance(LoginActivity.this).addToRequestQueue(strReq,tag_string_req);
                 // Simulate network access.
@@ -391,14 +394,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } catch (InterruptedException e) {
                 return false;
             }
+
             // if the response code is other than 0
             // return false to notice the login error
-            if(code!=0){
-                return false;
-            }
-
-
-            // TODO: register the new account here.
+           // if(code!=0){
+             //   return false;
+            //}
             return true;
         }
 

@@ -1,23 +1,39 @@
 package com.testing.hoan.at_mobile;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Hoan on 10/28/2016.
  */
-public class Events {
-    private int id;
+public class Events implements Parcelable {
+    private String id;
     private String title;
-    private String params;
-    private String description;
     private String imageUrl;
-    private String address;
-    private String zipcode;
-    private String city;
-    private String schedule;
-    private String dateStart;
-    private String dateEnd;
-    private String ticket;
-    private double price;
-    private String updated;
+    private String body;
+    public Events(){
+
+    }
+
+    protected Events(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        imageUrl = in.readString();
+        body=in.readString();
+    }
+
+    public static final Creator<Events> CREATOR = new Creator<Events>() {
+        @Override
+        public Events createFromParcel(Parcel in) {
+            return new Events(in);
+        }
+
+        @Override
+        public Events[] newArray(int size) {
+            return new Events[size];
+        }
+    };
+
     private boolean isValid(String params){
         if(params==null){
             return false;
@@ -25,11 +41,11 @@ public class Events {
         return true;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -41,22 +57,6 @@ public class Events {
         this.title = title;
     }
 
-    public String getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        this.params = params;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -64,76 +64,22 @@ public class Events {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    public String getAddress() {
-        return address;
+    public void setBody(String newBody){
+        body=newBody;
+    }
+    public String getBody(){
+        return body;
+    }
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getZipcode() {
-        return zipcode;
-    }
-
-    public void setZipcode(String zipcode) {
-        this.zipcode = zipcode;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(String schedule) {
-        this.schedule = schedule;
-    }
-
-    public String getDateStart() {
-        return dateStart;
-    }
-
-    public void setDateStart(String dateStart) {
-        this.dateStart = dateStart;
-    }
-
-    public String getDateEnd() {
-        return dateEnd;
-    }
-
-    public void setDateEnd(String dateEnd) {
-        this.dateEnd = dateEnd;
-    }
-
-    public String getTicket() {
-        return ticket;
-    }
-
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(String updated) {
-        this.updated = updated;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(imageUrl);
+        dest.writeString(body);
     }
 }

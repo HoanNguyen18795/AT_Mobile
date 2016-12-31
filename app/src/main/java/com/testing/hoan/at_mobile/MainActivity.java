@@ -1,11 +1,17 @@
 package com.testing.hoan.at_mobile;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +25,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,RecyclerViewFrag.RecyclerViewListener {
+    private static final String TAG="MainActivity";
     //Volley Request Queue
     private RequestQueue requestQueue;
 
@@ -40,8 +58,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         if(savedInstanceState==null){
             FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
-            RecyclerViewFrag recyclerFragment=new RecyclerViewFrag();
-            transaction.replace(R.id.centerFragment,recyclerFragment);
+            TabFragment tf=new TabFragment();
+            transaction.replace(R.id.centerFragment,tf);
             transaction.commit();
         }
         requestQueue = Volley.newRequestQueue(this);
@@ -50,14 +68,6 @@ public class MainActivity extends AppCompatActivity
         if(!session.isLoggedin()){
             // initialize activity without logging in
         }
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -114,72 +124,116 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_Home) {
             // go back to the parent View
         } else if (id == R.id.nav_Category) {
-            Fragment CateGoryFragment=new CateGoryFragment();
-            showFragment(CateGoryFragment);
+
 
         } else if (id == R.id.nav_YourOrder) {
-            Fragment OrderFragment=new OrderFragment();
-            showFragment(OrderFragment);
+
 
         } else if (id == R.id.nav_Settings) {
 
         } else if (id == R.id.nav_PromotionCode) {
 
         } else if (id == R.id.nav_Logout) {
-
+            session.setLogin(false);
+            Intent logout=new Intent(MainActivity.this,LoginActivity.class);
+            finish();
+            startActivity(logout);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void showFragment(Fragment fragment){
-        FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
-        //transaction.setCustomAnimations(R.animator.exit,R.animator.enter,R.animator.return_transition,R.animator.reenter);
-        transaction.replace(R.id.centerFragment,fragment).addToBackStack("").commit();
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
-    public static class OrderFragment extends Fragment{
-        private TextView mTextLabel;
-        private TextView mTextTotal;
-        private Button mRmvButton;
-        private Button mPurchaseButton;
-        public OrderFragment() {
-            // Empty constructor required for fragment subclasses
-        }
+    @Override
+    public void onItemSelected(int position,ArrayList<Events> eventsArrayList) {
+        String transitionName="";
+        String imageTransitionName="";
+        RecyclerViewFrag fragment1=new RecyclerViewFrag();
+        read_news fragment2=new read_news();
+        //transisions
+        Transition changeTransform = TransitionInflater.from(this).
+                inflateTransition(android.R.transition.move);
+        Transition explodeTransform = TransitionInflater.from(this).
+                inflateTransition(android.R.transition.explode);
+        // fragment1-recyclerViewFrag
+        fragment1.setSharedElementReturnTransition(changeTransform);
+        fragment1.setExitTransition(explodeTransform);
+        //fragment2-read_news
+        fragment2.setSharedElementEnterTransition(changeTransform);
+        fragment2.setEnterTransition(explodeTransform);
+        //Shared Views
+        NetworkImageView imageView=(NetworkImageView) findViewById(R.id.imageItem);
+        TextView title=(TextView) findViewById(R.id.testTv);
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.your_order, container, false);
-             mTextLabel=(TextView) rootView.findViewById(R.id.label);
-             mTextTotal=(TextView) rootView.findViewById(R.id.totalOrder);
-             mRmvButton=(Button) rootView.findViewById(R.id.remove);
-             mPurchaseButton=(Button) rootView.findViewById(R.id.purchase);
-            Log.i("order","onCreateView");
-            return rootView;
-        }
-    }
-    public static class CateGoryFragment extends Fragment{
-        private TextView apple;
-        private TextView samsung;
-        private TextView blackberry;
-        private TextView accessories;
-        private TextView used;
-        public CateGoryFragment(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                transitionName = title.getTransitionName();
+                imageTransitionName = imageView.getTransitionName();
 
         }
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.category, container, false);
-            apple=(TextView) rootView.findViewById(R.id.Apple);
-            samsung=(TextView) rootView.findViewById(R.id.Samsung);
-            blackberry=(TextView) rootView.findViewById(R.id.BlackBerry);
-            accessories=(TextView) rootView.findViewById(R.id.Accessories);
-            used=(TextView) rootView.findViewById(R.id.Used);
-            Log.i("category","onCreateView");
-            return rootView;
-        }
+
+        Bundle bundle=new Bundle();
+        bundle.putString("titleTransitionName",transitionName);
+        bundle.putString("imageTransisionName",imageTransitionName);
+        bundle.putString("titleText",title.getText().toString());
+
+        Events e=(Events)eventsArrayList.get(position);
+        Log.i(TAG,"current body text of "+position +"item"+" is "+e.getBody());
+        bundle.putString("body",e.getBody());
+        bundle.putString("id",e.getId());
+        Log.i(TAG,"current id of "+position +"item"+" is "+e.getId());
+        Log.i("onClickListener",title.getText().toString());
+        fragment2.setArguments(bundle);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction()
+                .replace(R.id.centerFragment, fragment2)
+                .addToBackStack("transaction")
+                .addSharedElement(imageView,imageTransitionName)
+                .addSharedElement(title, transitionName);
+        // Apply the transaction
+        ft.commit();
+        Log.i("onClickListener",""+position);
+        Log.i("onclicklistener","title: "+transitionName);
+        Log.i("onclicklistener","image: "+imageTransitionName);
     }
+    public void pushComment(final String comment, final int blogID ){
+        String tag_string_req="req_comment";
+        StringRequest strReq=new StringRequest(Request.Method.GET, AppConfig.GET_COMMENTS_URL+blogID, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Get comment Response: " + response.toString());
+                try{
+
+
+                }catch(Exception e){
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+                Toast.makeText(MainActivity.this, "Fail to get json! check your connection", Toast.LENGTH_SHORT).show();
+            }
+        }){
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters to login url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("blogID", String.valueOf(blogID));
+                params.put("comment",comment);
+
+                return params;
+            }
+
+        };
+    }
+
+
 }

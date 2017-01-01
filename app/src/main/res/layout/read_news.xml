@@ -3,32 +3,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/title_news"
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:textAlignment="center"
-            android:fontFamily="sans-serif"
-            android:paddingEnd="10dp"
-            android:gravity="bottom" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="30dp">
+                    <TextView
+                        android:id="@+id/title_news"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                        android:textAlignment="center"
+                        android:fontFamily="sans-serif"
+                        android:paddingEnd="10dp"
+                        android:gravity="bottom" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginTop="27dp"
+                        android:id="@+id/newsBody"
+                        android:textAlignment="center"
+                        android:paddingBottom="30dp"
+                        android:fadingEdge="vertical" />
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="27dp"
-            android:id="@+id/newsBody"
-            android:textAlignment="center" />
-
-    <ListView
-
-        android:layout_width="match_parent"
-        android:layout_height="262dp"
-        android:id="@+id/listView"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/pushComment" />
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/listView"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/pushComment" />
+        </LinearLayout>
+        </ScrollView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/pushComment"

@@ -44,8 +44,9 @@ public class read_news extends Fragment {
     private listViewAdapter adapter;
     private String TAG="read_news fragment";
     private ListView commentLv;
-    private String pushComment="";
     private String pushID;
+    private String name;
+    private String pushComment;
     ArrayList<Comments> list;
 
     @Nullable
@@ -85,6 +86,7 @@ public class read_news extends Fragment {
 
                 final EditText userInput = (EditText) promptsView
                         .findViewById(R.id.editTextDialogUserInput);
+                final EditText userName=(EditText) promptsView.findViewById(R.id.editTextName);
 
                 // set dialog message
                 alertDialogBuilder
@@ -92,12 +94,9 @@ public class read_news extends Fragment {
                         .setPositiveButton("OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
-                                        setPushComment(pushID,userInput.getText().toString(),pushComment,pushComment);
+                                        setPushComment(pushID,userInput.getText().toString(),userName.getText().toString(),"comment@gmail.com");
+                                        name=userName.getText().toString();
                                         pushComment=userInput.getText().toString();
-                                        Comments comments=new Comments();
-                                        comments.setComment(pushComment);
-                                        list.add(comments);
-                                        adapter.notifyDataSetChanged();
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -125,14 +124,34 @@ public class read_news extends Fragment {
         commentLv.setAdapter(adapter);
         return root;
     }
-    public void setPushComment(String id,final String comment,final String name,final String email) {
-
+    public void setPushComment(String id, String newComment, String newName, String newEmail) {
+        final String comment=newComment;
+        final String name=newName;
+        final String email=newEmail;
+        Log.i(TAG,comment);
+        Log.i(TAG,name);
+        Log.i(TAG,newEmail);
         try {
             String tag_string_req = "req_login";
             StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.PUSH_COMMENT_URL + id + "/addComment", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-
+                    try {
+                        JSONObject object =new JSONObject(response);
+                        int status=object.getInt("code");
+                        if(status==200){
+                            Comments comment=new Comments();
+                            comment.setUserName(name);
+                            comment.setComment(pushComment);
+                            list.add(comment);
+                            adapter.notifyDataSetChanged();
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Failed to send out data! check your connection", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     Log.i(TAG,response);
                 }
             }, new Response.ErrorListener() {
@@ -145,7 +164,14 @@ public class read_news extends Fragment {
 
                 @Override
                 public String getBodyContentType() {
-                    return "application/x-www-form-urlencoded";
+                    return "x-www-form-urlencoded";
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/x-www-form-urlencoded");
+                    return headers;
                 }
 
                 @Override
@@ -178,8 +204,10 @@ public class read_news extends Fragment {
                     JSONArray array =data.getJSONArray("comments");
                     for(int i=0;i<array.length();i++){
                         JSONObject commentObj=array.getJSONObject(i);
+                        String name=commentObj.getString("name");
                         String comment =commentObj.getString("body");
                         Comments com =new Comments();
+                        com.setUserName(name);
                         com.setComment(comment);
                         commentList.add(com);
                         adapter.notifyDataSetChanged();

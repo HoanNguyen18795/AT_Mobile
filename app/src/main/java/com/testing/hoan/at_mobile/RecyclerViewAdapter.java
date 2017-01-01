@@ -39,6 +39,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
+
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
         //getting the particular item on the list
@@ -65,23 +66,26 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return eventList.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
         //test view
         private TextView tv;
         //Views
         private NetworkImageView imageView;
+
         // initializing views
         public ViewHolder(View itemView) {
             super(itemView);
-            imageView=(NetworkImageView) itemView.findViewById(R.id.imageItem);
-            tv=(TextView) itemView.findViewById(R.id.testTv);
-
+            imageView = (NetworkImageView) itemView.findViewById(R.id.imageItem);
+            tv = (TextView) itemView.findViewById(R.id.testTv);
         }
-        public NetworkImageView getImageView(){
+
+        public NetworkImageView getImageView() {
             return imageView;
         }
-        public TextView getTextView(){
+
+        public TextView getTextView() {
             return tv;
         }
     }
+
 }
